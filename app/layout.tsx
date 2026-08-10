@@ -21,8 +21,10 @@ const golos = Golos_Text({
 });
 
 export const metadata: Metadata = {
-  // ЗАМЕНИТЬ на боевой домен перед продом.
-  metadataBase: new URL("https://royal-auto.vercel.app"),
+  // Боевой адрес деплоя. От него строятся абсолютные ссылки на OG-картинку,
+  // иначе превью при отправке ссылки в мессенджер приходит без изображения.
+  // ЗАМЕНИТЬ, когда у клиента появится собственный домен.
+  metadataBase: new URL("https://royal-auto-ten.vercel.app"),
   title: {
     default: `Аренда автомобилей без водителя в ${CONTACT.city} | ${SITE.name}`,
     template: `%s · ${SITE.name}`,

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   // Боевой адрес деплоя. От него строятся абсолютные ссылки на OG-картинку,
   // иначе превью при отправке ссылки в мессенджер приходит без изображения.
   // ЗАМЕНИТЬ, когда у клиента появится собственный домен.
-  metadataBase: new URL("https://royal-auto-ten.vercel.app"),
+  metadataBase: new URL("https://aktobe-rent.vercel.app"),
   title: {
     default: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,
     template: `%s · ${SITE.name}`,

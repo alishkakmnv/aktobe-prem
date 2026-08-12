@@ -5,8 +5,8 @@ import Image from "next/image";
 import { ArrowDown, MessageCircle } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { HERO_PHOTO, CAR_COUNT } from "@/data/cars";
-import { CONTACT, GENERAL_ENQUIRY, bookingUrl } from "@/data/site";
+import { HERO_PHOTO, CAR_COUNT, MIN_PRICE, amountLabel } from "@/data/cars";
+import { CONTACT, GENERAL_ENQUIRY, SITE, bookingUrl } from "@/data/site";
 import { ButtonLink } from "@/components/ui/Button";
 
 export function Hero() {
@@ -86,26 +86,31 @@ export function Hero() {
             className="rise text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-acc-pale"
             style={{ "--d": "0.05s" } as React.CSSProperties}
           >
-            Royal Auto · {CONTACT.city}
+            Аренда с водителем · {CONTACT.city}
           </p>
 
           <h1
             className="rise mt-6 text-[clamp(2rem,4.6vw,4.25rem)] font-medium leading-[1.02] tracking-[-0.025em]"
             style={{ "--d": "0.14s" } as React.CSSProperties}
           >
-            {/* Перенос через блочный span, а не <br>: с <br> текст заголовка
-                склеивается в «без водителяв {{ГОРОД}}» при чтении вслух. */}
-            Аренда авто без водителя{" "}
-            <span className="block">в {CONTACT.city}</span>
+            {/* Перенос через блочный span, а не <br>: с <br> строки заголовка
+                склеиваются в «с водителемв Актобе» при чтении вслух. */}
+            Премиум-авто с водителем{" "}
+            <span className="block">
+              в {CONTACT.city} — от{" "}
+              <span className="tnum">
+                {amountLabel(MIN_PRICE, SITE.currency, SITE.unit)}
+              </span>
+            </span>
           </h1>
 
           <p
             className="rise mt-8 max-w-[46ch] text-[1.0625rem] leading-[1.65] text-muted"
             style={{ "--d": "0.26s" } as React.CSSProperties}
           >
-            Классы от эконома до кроссовера. Оформление за пять минут по
-            паспорту и правам, выдача круглосуточно. Условия называем до
-            договора, а не на выдаче.
+            Свадьбы, трансферы, встречи гостей, деловые поездки и
+            VIP-сопровождение. Внедорожники, седан и микроавтобусы с водителем,
+            подача круглосуточно. Стоимость называем до выезда.
           </p>
 
           <div
@@ -145,7 +150,7 @@ export function Hero() {
               ·
             </li>
             <li className="whitespace-nowrap">
-              выдача <span className="text-ink">{CONTACT.hours}</span>
+              подача <span className="text-ink">{CONTACT.hours}</span>
             </li>
           </ul>
         </div>

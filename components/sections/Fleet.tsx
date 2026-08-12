@@ -7,7 +7,6 @@ import {
   CARS,
   CAR_CLASSES,
   CAR_COUNT,
-  carColor,
   priceLabel,
   type CarClassId,
 } from "@/data/cars";
@@ -40,8 +39,8 @@ export function Fleet() {
           </h2>
           <p className="max-w-[38ch] text-muted">
             <span className="tnum text-ink">{CAR_COUNT}</span> автомобилей в
-            четырёх классах, от эконома до кроссовера. Цену и наличие на ваши
-            даты назовём в переписке.
+            четырёх классах: внедорожники, седан, минивэн и микроавтобус. Все —
+            с водителем, тариф почасовой.
           </p>
         </div>
 
@@ -125,7 +124,7 @@ export function Fleet() {
                   <dl className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted">
                     <div className="flex gap-1.5">
                       <dt className="sr-only">Цвет</dt>
-                      <dd>{carColor(car)}</dd>
+                      <dd>{car.color}</dd>
                     </div>
                     <span aria-hidden className="text-line">
                       ·
@@ -152,7 +151,7 @@ export function Fleet() {
 
                   <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4">
                     <span className="tnum text-[0.9375rem] text-ink">
-                      {priceLabel(car, SITE.currency)}
+                      {priceLabel(car, SITE.currency, SITE.unit)}
                     </span>
                     <a
                       href={bookingUrl(carEnquiry(car.name))}

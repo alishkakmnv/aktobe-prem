@@ -1,5 +1,4 @@
-// Бренд-иконки (в т.ч. Instagram) удалены из lucide-react, поэтому AtSign.
-import { MessageCircle, Phone, MapPin, Clock, AtSign } from "lucide-react";
+import { MessageCircle, Phone, MapPin, Clock } from "lucide-react";
 import { CONTACT, GENERAL_ENQUIRY, SITE, bookingUrl } from "@/data/site";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -14,8 +13,8 @@ export function Contacts() {
             Готовы к выезду?
           </h2>
           <p className="mt-6 max-w-[52ch] text-[1.0625rem] leading-[1.65] text-ink/80">
-            Напишите в WhatsApp: подберём машину под задачу и срок, назовём
-            полную стоимость и оформим за пять минут.
+            Напишите в WhatsApp: подберём машину под событие и число гостей,
+            назовём полную стоимость и подадим авто с водителем к нужному часу.
           </p>
           <ButtonLink
             href={bookingUrl(GENERAL_ENQUIRY)}
@@ -29,7 +28,9 @@ export function Contacts() {
           </ButtonLink>
         </div>
 
-        <ul className="mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Три колонки, а не четыре: Instagram у клиента нет, пустую плитку
+            под него держать незачем. */}
+        <ul className="mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           <li className="reveal">
             <h3 className="flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted">
               <Phone size={13} strokeWidth={1.75} aria-hidden />
@@ -60,16 +61,6 @@ export function Contacts() {
             </h3>
             <p className="mt-3 font-display text-[1.0625rem] text-ink">
               {CONTACT.hours}
-            </p>
-          </li>
-
-          <li className="reveal reveal-step-3">
-            <h3 className="flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted">
-              <AtSign size={13} strokeWidth={1.75} aria-hidden />
-              Instagram
-            </h3>
-            <p className="mt-3 font-display text-[1.0625rem] text-ink">
-              {CONTACT.instagram}
             </p>
           </li>
         </ul>

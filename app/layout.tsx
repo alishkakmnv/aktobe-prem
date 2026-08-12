@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Unbounded, Golos_Text } from "next/font/google";
 import { CONTACT, SITE } from "@/data/site";
-import { OG_IMAGE } from "@/data/cars";
+import { OG_IMAGE, MIN_PRICE } from "@/data/cars";
 import "./globals.css";
 
 /* Дисплейный. Кириллица родная (Cyreal), поэтому subsets включает cyrillic —
@@ -26,34 +26,34 @@ export const metadata: Metadata = {
   // ЗАМЕНИТЬ, когда у клиента появится собственный домен.
   metadataBase: new URL("https://royal-auto-ten.vercel.app"),
   title: {
-    default: `Аренда автомобилей без водителя в ${CONTACT.city} | ${SITE.name}`,
+    default: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,
     template: `%s · ${SITE.name}`,
   },
   description:
-    `Аренда автомобилей без водителя в ${CONTACT.city}. Классы от эконома до кроссовера, ` +
-    "оформление за пять минут по паспорту и правам, условия названы до договора. " +
-    "Бронь в WhatsApp.",
+    `Аренда премиум-авто с водителем в ${CONTACT.city} от ${MIN_PRICE.toLocaleString("ru-RU")} ${SITE.currency}/${SITE.unit}. ` +
+    "Land Cruiser 200, LX570, Prado, Camry, Hiace, Sprinter. Свадьбы, трансферы, " +
+    "деловые поездки и VIP-сопровождение. Подача круглосуточно, заказ в WhatsApp.",
   applicationName: SITE.name,
   keywords: [
-    "аренда автомобиля",
-    "прокат авто",
-    "аренда без водителя",
-    "Royal Auto",
+    "аренда авто с водителем",
+    `аренда авто ${CONTACT.city}`,
+    "авто на свадьбу Актобе",
+    "трансфер Актобе",
+    "Land Cruiser 200 с водителем",
+    SITE.name,
   ],
   openGraph: {
     type: "website",
     locale: "ru_RU",
     siteName: SITE.name,
-    title: `Аренда автомобилей без водителя | ${SITE.name}`,
-    description:
-      "Классы от эконома до кроссовера. Оформление за пять минут, условия названы до договора.",
+    title: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,
+    description: `Внедорожники, седан и микроавтобусы с водителем от ${MIN_PRICE.toLocaleString("ru-RU")} ${SITE.currency}/${SITE.unit}. Свадьбы, трансферы, VIP-сопровождение. Подача круглосуточно.`,
     images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: `Аренда автомобилей без водителя | ${SITE.name}`,
-    description:
-      "Классы от эконома до кроссовера. Оформление за пять минут, условия названы до договора.",
+    title: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,
+    description: `Внедорожники, седан и микроавтобусы с водителем от ${MIN_PRICE.toLocaleString("ru-RU")} ${SITE.currency}/${SITE.unit}. Свадьбы, трансферы, VIP-сопровождение. Подача круглосуточно.`,
     images: [OG_IMAGE.url],
   },
   robots: { index: true, follow: true },

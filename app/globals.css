@@ -1,51 +1,44 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------
-   Aktobe Premium — design tokens
-   Значения и обоснование зафиксированы в DESIGN.md.
-   Контрасты просчитаны: ink 15.19:1, muted 7.06:1, acc 3.12:1 к фону.
+   Aktobe Premium — дизайн-система редизайна (BRIEF_REDESIGN.md, §1).
+   Графит ~70%, кость ~20%, зелёный ~10% и только на действии.
+   #0F3D2E — плоскость, кнопкой не бывает. Градиентов на кнопках,
+   свечений и дефолтных теней нет.
    --------------------------------------------------------------- */
 
-@theme {
-  /* Surfaces */
-  --color-bg: #0b0c0b;
-  --color-surface: #131614;
-  --color-raised: #1b201d;
-  --color-line: #262a27;
+:root {
+  --bg: #0b0c0b;
+  --floor: #0e100f;
+  --card: #131614;
+  --card-ph: #1b201d;
+  --border: #1f2421;
+  --line: #262a27;
+  --line-soft: #1a1e1b;
+  --outline: #3a403c;
+  --ink: #e8e2d6;
+  --muted: #9a9c95;
+  --green: #2e6b52;
+  --green-hover: #357a5e;
+  --green-deep: #0f3d2e;
+  --green-pale: #8fb3a2;
 
-  /* Ink */
-  --color-ink: #e8e2d6;
-  --color-muted: #9a9c95;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --font: var(--font-manrope), "Manrope", sans-serif;
 
-  /* Accent — гоночный зелёный.
-     acc     — контролы (CTA, активный таб): текст на нём 4.87:1, к фону 3.12:1
-     acc-hi  — hover-состояние acc
-     acc-deep— ТОЛЬКО крупные заливки секций, к фону 1.61:1, контролом быть не может
-     acc-pale— акцентный текст и иконки, 8.53:1 */
-  --color-acc: #2e6b52;
-  --color-acc-hi: #35785c;
-  --color-acc-deep: #0f3d2e;
-  --color-acc-pale: #8fb3a2;
+  --z-header: 100;
+  --z-dock: 90;
+  --z-menu: 310;
 
-  /* Typography */
-  --font-display: var(--font-unbounded), system-ui, sans-serif;
-  --font-body: var(--font-golos), system-ui, sans-serif;
-
-  /* Radii — потолок 4px, см. DESIGN.md */
-  --radius-sm: 2px;
-  --radius-md: 4px;
-
-  /* Easing */
-  --ease-out-quint: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Даёт анимировать высоту <details> до auto */
+  interpolate-size: allow-keywords;
 }
 
-/* Именованная z-шкала — произвольные 999 запрещены */
-:root {
-  --z-sticky: 100;
-  --z-float: 200;
-  --z-menu-backdrop: 300;
-  --z-menu: 310;
-  --z-modal: 400;
+@theme inline {
+  --font-sans: var(--font);
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
 }
 
 * {
@@ -53,153 +46,1717 @@
 }
 
 html {
-  background: var(--color-bg);
-  /* Плавный скролл ведёт Lenis; нативный оставлен как фолбэк для no-JS и reduced-motion */
+  background: var(--bg);
   scroll-behavior: smooth;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-ink);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.6;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
+  font-variant-numeric: tabular-nums;
 }
 
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
+  margin: 0;
   text-wrap: balance;
 }
 
 p {
+  margin: 0;
   text-wrap: pretty;
+}
+
+a {
+  color: var(--green-pale);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--ink);
 }
 
 button,
 a,
-label[for],
-select,
 summary {
   cursor: pointer;
   touch-action: manipulation;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-acc-pale);
+  outline: 2px solid var(--green-pale);
   outline-offset: 3px;
-  border-radius: 1px;
 }
 
-/* Цифры в характеристиках и ценах не должны прыгать по ширине */
 .tnum {
   font-variant-numeric: tabular-nums;
 }
 
-@utility container-page {
-  margin-inline: auto;
+/* ---------- сетка ---------- */
+
+.wrap {
   width: 100%;
-  max-width: 1360px;
-  padding-inline: clamp(1.25rem, 4vw, 4rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 40px;
 }
 
-@utility section-y {
-  padding-block: clamp(5rem, 10vw, 9rem);
+.grid12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 24px;
 }
 
-/* Вход hero.
-   Намеренно на CSS, а не на JS: базовое состояние разметки — видимое,
-   анимация лишь проигрывается поверх. Если JS не отработал, текст на месте.
-   --d задаёт ступень stagger на конкретном элементе. */
-@keyframes rise-in {
+.section {
+  position: relative;
+  padding-block: 120px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+/* ---------- типографика ---------- */
+
+.h1 {
+  font-size: clamp(40px, 5.2vw, 76px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+.h2 {
+  margin-top: 22px;
+  font-size: clamp(34px, 3.6vw, 52px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  margin-top: 16px;
+  max-width: 46ch;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-pale);
+}
+
+.eyebrow::before {
+  content: "";
+  flex: none;
+  width: 40px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left;
+  transform: scaleX(var(--eyebrow-x, 1));
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-pale);
+}
+
+/* Маска строки: H1 и H2 выезжают из-под неё снизу */
+.mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+
+.mask > span {
+  display: block;
+}
+
+.accent {
+  color: var(--green-pale);
+}
+
+/* ---------- текст-ролл ---------- */
+
+.roll {
+  display: inline-block;
+  height: 1.25em;
+  line-height: 1.25;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.roll > span {
+  display: block;
+  transition: transform 0.35s var(--ease-out);
+}
+
+a:hover .roll > span,
+button:hover .roll > span,
+.card:hover .roll > span,
+.tile:hover .roll > span {
+  transform: translateY(-100%);
+}
+
+/* ---------- кнопки ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 26px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font: 600 15px/1 var(--font);
+  color: var(--ink);
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+
+.btn:hover {
+  color: var(--ink);
+}
+
+.btn-acc {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.btn-acc:hover {
+  background: var(--green-hover);
+  border-color: var(--green-hover);
+}
+
+.btn-line {
+  background: transparent;
+  border-color: var(--outline);
+}
+
+.btn-line:hover {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+/* ---------- шапка-таблетка ---------- */
+
+.site-header {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  right: 0;
+  z-index: var(--z-header);
+  pointer-events: none;
+}
+
+.pill {
+  pointer-events: auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 10px 0 26px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(11, 12, 11, 0.6);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 44px;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.logo b {
+  font-weight: 800;
+}
+
+.logo span {
+  font-weight: 400;
+  color: var(--green-pale);
+}
+
+.nav {
+  display: flex;
+  gap: 32px;
+}
+
+.nav a {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.nav a:hover {
+  color: var(--ink);
+}
+
+.pill-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.pill-phone {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.pill-btn:hover {
+  background: var(--green-hover);
+  color: var(--ink);
+}
+
+.burger {
+  display: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  background: var(--bg);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s var(--ease-out),
+    visibility 0s linear 0.3s;
+}
+
+.menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.menu nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu li {
+  border-bottom: 1px solid var(--line);
+}
+
+.menu li a {
+  display: block;
+  padding: 20px 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  position: relative;
+  /* Свой слой: секции ниже наезжают на запиненную сцену поверх неё */
+  z-index: 0;
+  min-height: 880px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.hero-cols {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-cols .grid12 {
+  height: 100%;
+}
+
+.hero-cols .grid12 > div {
+  border-left: 1px solid var(--line-soft);
+  border-right: 1px solid var(--line-soft);
+}
+
+.hero-floor-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 118px;
+  height: 1px;
+  background: var(--line);
+}
+
+.hero-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 118px;
+  background: var(--floor);
+}
+
+.car-stage {
+  position: absolute;
+  left: -7%;
+  bottom: 118px;
+  width: 66%;
+  pointer-events: none;
+}
+
+.car-stage img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Радиальная тень под машиной — единственный допустимый градиент */
+.car-shadow {
+  position: absolute;
+  left: 6%;
+  right: 4%;
+  bottom: -16px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0) 100%);
+}
+
+.car-nod {
+  transform-origin: 30% 100%;
+}
+
+.plate {
+  position: absolute;
+  right: 12%;
+  top: -14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: rgba(11, 12, 11, 0.72);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.plate::before {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--green-pale);
+}
+
+.plate b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.plate span {
+  color: var(--muted);
+}
+
+.hero-copy-wrap {
+  position: relative;
+  z-index: 1;
+  padding-top: 196px;
+  padding-bottom: 210px;
+}
+
+.hero-copy {
+  grid-column: 7 / span 6;
+}
+
+.hero-copy .h1 {
+  margin-top: 24px;
+}
+
+.hero-price {
+  margin-top: 26px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.hero-price b {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.hero-text {
+  margin-top: 22px;
+  max-width: 46ch;
+  color: var(--muted);
+}
+
+.hero-cta {
+  margin-top: 34px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 118px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.hero-info ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.hero-info ul b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.scroll-cue {
+  position: relative;
+  flex: none;
+  width: 24px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+}
+
+.scroll-cue::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  width: 1px;
+  height: 40px;
+  background: var(--outline);
+}
+
+.scroll-cue span {
+  position: absolute;
+  top: 4px;
+  width: 5px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--green-pale);
+  animation: cue-dot 1.5s ease-in-out infinite alternate;
+}
+
+/* Сборка hero на загрузке. На CSS, а не через JS-from(): разметка по умолчанию
+   видимая, и без JS или до гидратации текст не мигает пустым экраном.
+   Тайминги один в один с раскадровкой §5. */
+@media (prefers-reduced-motion: no-preference) {
+  .car-move {
+    animation: car-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .car-nod {
+    animation: nod 0.18s ease-in-out 1.25s 2 alternate both;
+  }
+
+  .car-shadow {
+    animation: shadow-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .hero .mask > span {
+    animation: line-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero .rise {
+    animation: rise 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
+
+  .plate.rise {
+    animation: plate-in 0.6s cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero .rise,
+  .hero .mask > span {
+    animation: fade 0.3s both;
+  }
+
+  .scroll-cue span {
+    animation: none;
+  }
+}
+
+@keyframes car-in {
+  from {
+    transform: translateX(-130%);
+  }
+}
+
+@keyframes nod {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(-0.6deg);
+  }
+}
+
+@keyframes shadow-in {
+  from {
+    transform: translateX(-130%) scaleX(0.6);
+    opacity: 0;
+  }
+}
+
+@keyframes line-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+@keyframes plate-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@keyframes fade {
   from {
     opacity: 0;
-    transform: translate3d(0, 1.25rem, 0);
   }
+}
+
+@keyframes cue-dot {
   to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+    transform: translateY(28px);
   }
 }
 
-.rise {
-  animation: rise-in 0.65s var(--ease-out-quint) both;
-  animation-delay: var(--d, 0s);
+/* ---------- манифест ---------- */
+
+.manifest {
+  padding-block: 128px;
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
+.manifest p {
+  font-size: clamp(34px, 4.2vw, 60px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+/* ---------- автопарк ---------- */
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tab {
+  min-height: 44px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 14px/1 var(--font);
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+
+.tab:hover {
+  color: var(--ink);
+  border-color: var(--outline);
+}
+
+.tab[aria-pressed="true"] {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--ink);
+}
+
+.tab .n {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.cards {
+  position: relative;
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--ink);
+  transition: border-color 0.3s;
+}
+
+.card[hidden] {
+  display: none;
+}
+
+.card:hover {
+  border-color: var(--green);
+  color: var(--ink);
+}
+
+.ph {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--card-ph);
+}
+
+.ph img {
+  object-fit: cover;
+  filter: grayscale(1);
+  transition:
+    transform 0.6s var(--ease-out),
+    filter 0.4s ease;
+}
+
+.card:hover .ph img,
+.tile:hover .ph img {
+  transform: scale(1.04);
+  filter: grayscale(0);
+}
+
+.badge {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  padding: 7px 10px;
+  border-radius: 3px;
+  background: rgba(11, 12, 11, 0.82);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--green-pale);
+}
+
+/* Заглушка Sprinter: фото ещё не снято, чужое стоковое не ставим */
+.ph-pending {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--outline);
+}
+
+.ph-pending p {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px;
+}
+
+.card-specs {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.card-foot {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.card-specs + .card-foot {
+  margin-top: 18px;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.price b {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 18px;
+  border-radius: 4px;
+  border: 1px solid var(--outline);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.card-btn svg,
+.tile-arrow svg {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.card:hover .card-btn {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.card:hover .card-btn svg,
+.tile:hover .tile-arrow svg {
+  transform: translateX(4px);
+}
+
+.rail-count {
+  display: none;
+}
+
+/* ---------- сценарии (bento) ---------- */
+
+.bento {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 280px;
+  gap: 24px;
+}
+
+.tile {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-ph);
+  color: var(--ink);
+  transition: border-color 0.3s;
+}
+
+.tile:hover {
+  border-color: var(--green);
+  color: var(--ink);
+}
+
+.tile.is-big {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.tile .ph {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+}
+
+.tile .ph img {
+  filter: grayscale(1) brightness(0.62);
+}
+
+.tile:hover .ph img {
+  filter: grayscale(0) brightness(0.75);
+}
+
+.tile-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px;
+}
+
+.tile-body p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--ink);
+  opacity: 0.8;
+}
+
+.tile.is-big .h3 {
+  font-size: clamp(26px, 2.6vw, 36px);
+  letter-spacing: -0.03em;
+}
+
+.tile-arrow {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--outline);
+  background: rgba(11, 12, 11, 0.72);
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.tile:hover .tile-arrow {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+/* ---------- условия ---------- */
+
+.terms {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.term {
+  padding: 36px 32px 40px;
+  background: var(--bg);
+}
+
+.term.is-deep {
+  background: var(--green-deep);
+}
+
+.term-value {
+  margin-top: 14px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.term-note {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.term.is-deep .term-note {
+  color: rgba(232, 226, 214, 0.78);
+}
+
+/* ---------- процесс ---------- */
+
+.steps-wrap {
+  position: relative;
+  margin-top: 64px;
+}
+
+.steps-line,
+.steps-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 1px;
+  background: var(--line);
+}
+
+.steps-fill {
+  background: var(--green);
+  transform-origin: left;
+}
+
+.steps {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.step-dot {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--green-pale);
+  background: var(--bg);
+  transition:
+    background-color 0.4s,
+    border-color 0.4s;
+}
+
+.step-n {
+  margin-top: 32px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green-pale);
+  transition: color 0.4s;
+}
+
+.step .h3 {
+  margin-top: 10px;
+}
+
+.step-text {
+  margin-top: 12px;
+  max-width: 32ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* Активный шаг включает скролл-сцена; без JS все шаги просто видны */
+.step.is-active .step-dot {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.step.is-active .step-n {
+  color: var(--green);
+}
+
+/* ---------- доверие + FAQ ---------- */
+
+.two {
+  display: grid;
+  grid-template-columns: 5fr 1fr 6fr;
+}
+
+.reasons {
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+}
+
+.reasons li {
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+}
+
+.reasons li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.reasons li:last-child {
+  padding-bottom: 0;
+}
+
+.reasons h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.reasons p {
+  margin-top: 10px;
+  max-width: 46ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.faq {
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.faq details {
+  border-bottom: 1px solid var(--line);
+  border-radius: 4px;
+  transition:
+    border-color 0.35s,
+    padding 0.35s;
+}
+
+.faq details[open] {
+  margin: 8px 0;
+  padding: 0 20px;
+  border: 1px solid rgba(46, 107, 82, 0.4);
+}
+
+.faq summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.plus {
+  flex: none;
+  color: var(--green-pale);
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.faq details[open] .plus {
+  transform: rotate(45deg);
+}
+
+/* Высота ответа анимируется там, где браузер это умеет (::details-content);
+   в остальных пункт просто раскрывается. */
+.faq details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 0.35s var(--ease-out),
+    content-visibility 0.35s allow-discrete;
+}
+
+.faq details[open]::details-content {
+  block-size: auto;
+}
+
+.faq details p {
+  padding-bottom: 26px;
+  max-width: 56ch;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.faq-more {
+  margin-top: 28px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* ---------- финал / контакты ---------- */
+
+.final {
+  padding: 120px 0 96px;
+}
+
+.final-plane {
+  padding: clamp(40px, 6vw, 88px);
+  border-radius: 6px;
+  background: var(--green-deep);
+}
+
+.final-plane > div {
+  max-width: 620px;
+}
+
+.final-plane .h2 {
+  font-size: clamp(36px, 4.4vw, 64px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+.final-plane p.final-text {
+  margin-top: 22px;
+  max-width: 48ch;
+  color: rgba(232, 226, 214, 0.8);
+}
+
+.big-links {
+  margin-top: 56px;
+  border-bottom: 1px solid var(--line);
+}
+
+.big {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 30px 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font-size: clamp(32px, 4.6vw, 64px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.big:hover {
+  color: var(--ink);
+}
+
+.big .roll {
+  height: 1.08em;
+  line-height: 1.08;
+}
+
+.big svg {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.big:hover svg {
+  transform: translateX(8px);
+}
+
+.final-meta {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 48px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.final-meta b {
+  margin-right: 10px;
+  font-weight: 600;
+  color: var(--green-pale);
+}
+
+/* ---------- футер ---------- */
+
+.footer {
+  border-top: 1px solid var(--border);
+}
+
+.footer .wrap {
+  min-height: 96px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.footer b {
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+}
+
+.footer .accent {
+  letter-spacing: 0.16em;
+}
+
+/* ---------- связь ---------- */
+
+.dock {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: var(--z-dock);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dock a {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--ink);
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.dock .d-tel {
+  border: 1px solid var(--outline);
+  background: rgba(11, 12, 11, 0.6);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.dock .d-tel:hover {
+  border-color: var(--green-pale);
+  color: var(--ink);
+}
+
+.dock .d-wa {
+  background: var(--green);
+}
+
+.dock .d-wa:hover {
+  background: var(--green-hover);
+  color: var(--ink);
+}
+
+.mbar {
+  display: none;
+}
+
+/* ---------- скролл-сцены ---------- */
+
+/* Слова манифеста подсвечивает GSAP; класс ставится только при живом JS */
+.manifest .word {
+  display: inline-block;
+}
+
+/* ---------- 1024 ---------- */
+
+@media (max-width: 1024px) {
+  .nav,
+  .dock {
+    display: none;
   }
-  to {
-    opacity: 1;
+
+  .burger {
+    display: inline-flex;
+  }
+
+  .hero {
+    min-height: 0;
+  }
+
+  .hero-copy-wrap {
+    padding-top: 140px;
+    padding-bottom: 0;
+  }
+
+  .hero-copy {
+    grid-column: 1 / -1;
+  }
+
+  .car-stage {
+    position: relative;
+    left: -12%;
+    bottom: auto;
+    width: 118%;
+    margin-top: 8px;
+  }
+
+  .hero-floor-line,
+  .hero-floor {
+    display: none;
+  }
+
+  .hero-stage-wrap {
+    position: relative;
+    margin-top: 48px;
+    padding-bottom: 0;
+  }
+
+  .hero-stage-wrap::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .hero-info {
+    position: relative;
+    height: auto;
+    padding-block: 24px 28px;
+    background: var(--floor);
+  }
+
+  .cards,
+  .terms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 240px;
+  }
+
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 48px;
+  }
+
+  .steps-line,
+  .steps-fill {
+    display: none;
+  }
+
+  .two {
+    grid-template-columns: 1fr;
+    row-gap: 96px;
+  }
+
+  .two > .spacer {
+    display: none;
+  }
+
+  /* Липкая панель связи */
+  .mbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-dock);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(11, 12, 11, 0.86);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  .mbar.is-shown {
+    transform: translateY(0);
+  }
+
+  .mbar a {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .mbar .m-tel {
+    border: 1px solid var(--outline);
+  }
+
+  .mbar .m-wa {
+    background: var(--green);
+  }
+
+  .footer {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
 }
 
-/* Проявление секций на скролле, целиком на CSS.
-   Сделано через scroll-driven animation, а не через whileInView: у JS-подхода
-   начальное состояние opacity:0 попадает в серверную разметку, и если гидратация
-   не отработала, секция остаётся пустой. Здесь при отсутствии поддержки
-   animation-timeline просто ничего не анимируется, а контент виден всегда. */
-@keyframes rise-only {
-  from {
-    transform: translate3d(0, 1.75rem, 0);
+/* ---------- 640 ---------- */
+
+@media (max-width: 640px) {
+  .wrap {
+    padding-inline: 20px;
   }
-  to {
-    transform: translate3d(0, 0, 0);
+
+  .site-header {
+    top: 12px;
+  }
+
+  .site-header .wrap {
+    padding-inline: 12px;
+  }
+
+  .pill {
+    height: 56px;
+    padding: 0 6px 0 18px;
+    gap: 12px;
+  }
+
+  .logo {
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .pill-phone,
+  .plate,
+  .scroll-cue,
+  .pill-btn {
+    display: none;
+  }
+
+  .section {
+    padding-block: 72px;
+  }
+
+  .manifest {
+    padding-block: 72px;
+  }
+
+  .hero-copy-wrap {
+    padding-top: 108px;
+  }
+
+  .hero-price b {
+    font-size: 32px;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+  }
+
+  .hero-info ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+    font-size: 13px;
+  }
+
+  /* Автопарк лентой: соседняя карточка торчит из-за края */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    flex: none;
+  }
+
+  .cards {
+    display: flex;
+    gap: 12px;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    margin-top: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 20px;
+    scrollbar-width: none;
+  }
+
+  .cards::-webkit-scrollbar {
+    display: none;
+  }
+
+  .card {
+    flex: none;
+    width: 86vw;
+    max-width: 336px;
+    scroll-snap-align: start;
+  }
+
+  .card.is-lead .ph img {
+    filter: grayscale(0);
+  }
+
+  .card-btn {
+    height: 48px;
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .rail-count {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .rail-count b {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .rail-track {
+    position: relative;
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .rail-track span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--green-pale);
+    transform-origin: left;
+  }
+
+  .bento {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 200px;
+    gap: 12px;
+  }
+
+  .tile.is-big {
+    grid-column: auto;
+    grid-row: span 2;
+  }
+
+  .terms,
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .term {
+    padding: 22px 20px;
+  }
+
+  .term-value {
+    margin-top: 8px;
+    font-size: 24px;
+  }
+
+  .term-note {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  .final {
+    padding: 72px 0 64px;
+  }
+
+  .big {
+    padding: 24px 0;
+  }
+
+  .big svg {
+    width: 28px;
+    height: 28px;
   }
 }
 
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    /* Только сдвиг, без прозрачности. У scroll-driven анимации кадр «from»
-       держится, пока элемент не вошёл в диапазон, поэтому opacity:0 оставлял бы
-       всё ниже экрана невидимым: при рендере страницы целиком, на печати и в
-       любом инструменте, который снимает её одним кадром. Сдвиг такого эффекта
-       не даёт, текст читается всегда. */
-    .reveal {
-      animation: rise-only linear both;
-      animation-timeline: view();
-      animation-range: entry 8% cover 30%;
-    }
-
-    /* Ступень внутри одного списка: каждый следующий элемент вступает чуть позже.
-       Диапазон сдвигается, а не задержка, потому что таймлайн здесь скролл. */
-    .reveal-step-1 {
-      animation-range: entry 10% cover 32%;
-    }
-    .reveal-step-2 {
-      animation-range: entry 14% cover 36%;
-    }
-    .reveal-step-3 {
-      animation-range: entry 18% cover 40%;
-    }
-  }
-}
-
-/* Reduced motion — это меньше перемещений, а не полное отсутствие анимации.
-   Смену состояния показать надо, иначе интерфейс выглядит сломанным:
-   поэтому перемещение заменяется проявлением, а переходы просто укорачиваются.
-   Lenis и scroll-сцены GSAP при этой настройке не инициализируются вовсе. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
-  .rise {
-    animation: fade-in 0.2s ease both;
-    animation-delay: var(--d, 0s);
-  }
-
   *,
   *::before,
   *::after {
-    animation-iteration-count: 1 !important;
     transition-duration: 0.15s !important;
-    scroll-behavior: auto !important;
   }
 }

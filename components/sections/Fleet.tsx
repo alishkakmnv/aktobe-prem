@@ -1,175 +1,185 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import {
-  CARS,
-  CAR_CLASSES,
-  CAR_COUNT,
-  priceLabel,
-  type CarClassId,
-} from "@/data/cars";
+import { gsap } from "gsap";
+import { Flip } from "gsap/Flip";
+import { CARS, CAR_CLASSES, CAR_COUNT, type Car, type CarClassId } from "@/data/cars";
 import { SITE, bookingUrl, carEnquiry } from "@/data/site";
-
-const EASE = [0.16, 1, 0.3, 1] as const;
+import { Roll } from "@/components/ui/Roll";
+import { ArrowRight, VanIcon } from "@/components/ui/icons";
 
 type Filter = CarClassId | "all";
 
+const DRIVE: Record<Car["drive"], string> = {
+  Передний: "передний привод",
+  Задний: "задний привод",
+  Полный: "полный привод",
+};
+
+const specs = (car: Car) =>
+  `${car.transmission} · ${DRIVE[car.drive]} · ${car.seats} мест`;
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
 export function Fleet() {
   const [filter, setFilter] = useState<Filter>("all");
-  const reduced = useReducedMotion();
+  const gridRef = useRef<HTMLDivElement>(null);
+  const railFillRef = useRef<HTMLSpanElement>(null);
+  const flipState = useRef<Flip.FlipState | null>(null);
+  const [railIndex, setRailIndex] = useState(1);
 
-  const visible = useMemo(
-    () => (filter === "all" ? CARS : CARS.filter((c) => c.class === filter)),
-    [filter],
-  );
+  const visible = filter === "all" ? CARS : CARS.filter((c) => c.class === filter);
 
-  const tabs: { id: Filter; label: string }[] = [
-    { id: "all", label: "Все" },
-    ...CAR_CLASSES.map((c) => ({ id: c.id as Filter, label: c.label })),
+  const tabs: { id: Filter; label: string; count: number }[] = [
+    { id: "all", label: "Все", count: CAR_COUNT },
+    ...CAR_CLASSES.map((c) => ({
+      id: c.id as Filter,
+      label: c.label,
+      count: CARS.filter((car) => car.class === c.id).length,
+    })),
   ];
 
-  return (
-    <section id="fleet" className="section-y">
-      <div className="container-page">
-        <div className="reveal flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <h2 className="max-w-[16ch] text-[clamp(1.75rem,3.2vw,2.75rem)] font-medium leading-[1.06] tracking-[-0.02em]">
-            Автопарк
-          </h2>
-          <p className="max-w-[38ch] text-muted">
-            <span className="tnum text-ink">{CAR_COUNT}</span> автомобилей в
-            четырёх классах: внедорожники, седан, минивэн и микроавтобус. Все —
-            с водителем, тариф почасовой.
-          </p>
-        </div>
+  const pick = (id: Filter) => {
+    if (id === filter) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (gridRef.current && !reduced) {
+      gsap.registerPlugin(Flip);
+      flipState.current = Flip.getState(gridRef.current.querySelectorAll(".card"));
+    }
+    setFilter(id);
+    gridRef.current?.scrollTo({ left: 0 });
+  };
 
-        <div
-          role="group"
-          aria-label="Фильтр по классу автомобиля"
-          className="reveal mt-12 flex flex-wrap gap-2"
-        >
-          {tabs.map((tab) => {
-            const active = filter === tab.id;
-            return (
+  // Карточки не размонтируются, а прячутся атрибутом hidden: так Flip видит
+  // и уходящие, и входящие, и сетка перестраивается одним движением.
+  useLayoutEffect(() => {
+    const state = flipState.current;
+    if (!state) return;
+    flipState.current = null;
+    Flip.from(state, {
+      duration: 0.5,
+      ease: "power2.inOut",
+      absolute: true,
+      onEnter: (els) =>
+        gsap.fromTo(els, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, delay: 0.15 }),
+      onLeave: (els) => gsap.to(els, { autoAlpha: 0, duration: 0.25 }),
+    });
+  }, [filter]);
+
+  // Счётчик ленты на мобайле: «01 ──── 06»
+  const onRailScroll = () => {
+    const el = gridRef.current;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    const progress = el.scrollLeft / (el.scrollWidth - el.clientWidth);
+    const index = Math.round(progress * (visible.length - 1)) + 1;
+    setRailIndex(index);
+    if (railFillRef.current) {
+      railFillRef.current.style.transform = `scaleX(${index / visible.length})`;
+    }
+  };
+
+  const total = visible.length;
+
+  return (
+    <section id="fleet" className="section" style={{ paddingTop: 128 }}>
+      <div className="wrap">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">01 — Автопарк</p>
+            <h2 className="h2" data-reveal>
+              Автопарк
+            </h2>
+            <p className="lead" style={{ maxWidth: "44ch" }}>
+              Тариф почасовой, за рулём всегда водитель компании. Нажмите на
+              машину, и заявка уйдёт в WhatsApp с её названием.
+            </p>
+          </div>
+
+          <div className="tabs" role="group" aria-label="Фильтр по классу автомобиля">
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setFilter(tab.id)}
-                aria-pressed={active}
-                className={`rounded-md border px-5 py-3 text-sm transition-[background-color,border-color,color] duration-200 ease-out-quint ${
-                  active
-                    ? "border-acc bg-acc text-ink"
-                    : "border-line text-muted hover:border-acc-pale hover:text-ink"
-                }`}
+                className="tab"
+                aria-pressed={filter === tab.id}
+                onClick={() => pick(tab.id)}
               >
                 {tab.label}
-                {/* Активность помечена не только заливкой: цвет не может быть
-                    единственным носителем смысла. */}
-                {active && <span className="sr-only"> (выбрано)</span>}
+                <span className="n tnum">{tab.count}</span>
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        <p aria-live="polite" className="mt-6 text-sm text-muted">
-          Показано <span className="tnum text-ink">{visible.length}</span> из{" "}
-          <span className="tnum">{CAR_COUNT}</span>
+        <p className="sr-only" aria-live="polite">
+          Показано {total} из {CAR_COUNT}
         </p>
 
-        <motion.ul
-          layout={!reduced}
-          className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-6 gap-y-12"
-        >
-          <AnimatePresence mode="popLayout" initial={false}>
-            {visible.map((car) => {
-              const klass = CAR_CLASSES.find((c) => c.id === car.class);
-              return (
-                <motion.li
-                  key={car.id}
-                  layout={!reduced}
-                  initial={reduced ? false : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.18 } }}
-                  transition={{ duration: 0.4, ease: EASE }}
-                  className="group"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-surface">
+        <div className="cards" ref={gridRef} onScroll={onRailScroll} data-batch>
+          {CARS.map((car) => {
+            const shown = filter === "all" || car.class === filter;
+            const klass = CAR_CLASSES.find((c) => c.id === car.class);
+            return (
+              <a
+                key={car.id}
+                className={`card${visible[0]?.id === car.id ? " is-lead" : ""}`}
+                href={bookingUrl(carEnquiry(car.name))}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-track="whatsapp"
+                data-flip-id={car.id}
+                hidden={!shown}
+                aria-label={`Заказать ${car.name} с водителем, ${car.pricePerHour.toLocaleString("ru-RU")} ${SITE.currency} в час — откроется WhatsApp`}
+              >
+                <div className="ph">
+                  {car.photoPending ? (
+                    <div className="ph-pending">
+                      <VanIcon size={64} strokeWidth={1.2} />
+                      <p>Фото готовится</p>
+                    </div>
+                  ) : (
                     <Image
                       src={car.photo}
                       alt={car.alt}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
-                      className="object-cover transition-[filter,transform] duration-500 ease-out-quint
-                                 [filter:saturate(0.4)_brightness(0.78)]
-                                 group-hover:[filter:saturate(1)_brightness(1)]
-                                 group-hover:scale-[1.03]"
+                      sizes="(max-width: 640px) 86vw, (max-width: 1024px) 50vw, 400px"
+                      style={{ objectPosition: car.photoPosition }}
                     />
-                    <span className="absolute left-4 top-4 rounded-sm border border-acc-pale/35 bg-bg/70 px-2.5 py-1 text-[0.6875rem] font-medium uppercase tracking-[0.12em] text-acc-pale backdrop-blur-sm">
-                      {klass?.label}
+                  )}
+                  <span className="badge">{klass?.label}</span>
+                </div>
+                <div className="card-body">
+                  <h3 className="h3">{car.name}</h3>
+                  <p className="card-specs">{specs(car)}</p>
+                  <div className="card-foot">
+                    <p className="price tnum">
+                      <b>{car.pricePerHour.toLocaleString("ru-RU")}</b>
+                      {SITE.currency}/{SITE.unit}
+                    </p>
+                    <span className="card-btn">
+                      <Roll>Заказать</Roll>
+                      <ArrowRight />
                     </span>
                   </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
 
-                  <h3 className="mt-5 text-[1.0625rem] font-medium tracking-[-0.01em]">
-                    {car.name}
-                  </h3>
-                  {/* Линия под названием: та самая line-reveal на наведение.
-                      Характеристики при этом видны всегда — прятать их за hover
-                      значило бы скрыть их от тач-устройств. */}
-                  <span
-                    aria-hidden
-                    className="mt-2 block h-px w-full origin-left scale-x-0 bg-acc-pale transition-transform duration-500 ease-out-quint group-hover:scale-x-100"
-                  />
-
-                  <dl className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted">
-                    <div className="flex gap-1.5">
-                      <dt className="sr-only">Цвет</dt>
-                      <dd>{car.color}</dd>
-                    </div>
-                    <span aria-hidden className="text-line">
-                      ·
-                    </span>
-                    <div className="flex gap-1.5">
-                      <dt className="sr-only">Коробка передач</dt>
-                      <dd>{car.transmission}</dd>
-                    </div>
-                    <span aria-hidden className="text-line">
-                      ·
-                    </span>
-                    <div className="flex gap-1.5">
-                      <dt className="sr-only">Привод</dt>
-                      <dd>{car.drive}</dd>
-                    </div>
-                    <span aria-hidden className="text-line">
-                      ·
-                    </span>
-                    <div className="flex gap-1.5">
-                      <dt className="sr-only">Мест</dt>
-                      <dd>{car.seats} мест</dd>
-                    </div>
-                  </dl>
-
-                  <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4">
-                    <span className="tnum text-[0.9375rem] text-ink">
-                      {priceLabel(car, SITE.currency, SITE.unit)}
-                    </span>
-                    <a
-                      href={bookingUrl(carEnquiry(car.name))}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-display text-sm text-acc-pale transition-colors duration-200 hover:text-ink"
-                    >
-                      Забронировать
-                      {/* Марка уходит в sr-only: на экране она уже над кнопкой,
-                          а скринридеру ссылка должна быть понятна вне контекста. */}
-                      <span className="sr-only"> {car.name} в WhatsApp</span>
-                    </a>
-                  </div>
-                </motion.li>
-              );
-            })}
-          </AnimatePresence>
-        </motion.ul>
+        {total > 1 && (
+          <div className="rail-count tnum" aria-hidden="true">
+            <b>{pad(railIndex)}</b>
+            <span className="rail-track">
+              <span
+                ref={railFillRef}
+                style={{ transform: `scaleX(${1 / total})` }}
+              />
+            </span>
+            <span>{pad(total)}</span>
+          </div>
+        )}
       </div>
     </section>
   );

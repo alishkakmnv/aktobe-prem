@@ -1,40 +1,40 @@
 import Link from "next/link";
 import { CONTACT, GENERAL_ENQUIRY, SITE, bookingUrl } from "@/data/site";
-import { ButtonLink } from "@/components/ui/Button";
 
 export const metadata = { title: "Страница не найдена" };
 
 export default function NotFound() {
   return (
-    <main className="flex flex-1 items-center">
-      <div className="container-page py-[clamp(6rem,14vw,10rem)]">
-        <p className="tnum font-display text-sm text-acc-pale">404</p>
-        <h1 className="mt-5 max-w-[20ch] text-[clamp(1.75rem,4vw,3rem)] font-medium leading-[1.05] tracking-[-0.025em]">
+    <main className="section" style={{ borderTop: 0, minHeight: "100svh", display: "flex", alignItems: "center" }}>
+      <div className="wrap">
+        <p className="eyebrow">404</p>
+        <h1 className="h2" style={{ marginTop: 22, maxWidth: "20ch" }}>
           Такой страницы нет
         </h1>
-        <p className="mt-6 max-w-[46ch] text-[1.0625rem] leading-[1.65] text-muted">
+        <p className="lead">
           Ссылка устарела или в адресе опечатка. Автопарк и условия заказа на
           месте, а если нужна конкретная машина на дату, быстрее просто
           спросить.
         </p>
 
-        <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-          <ButtonLink href="/">Вернуться на главную</ButtonLink>
-          <ButtonLink
+        <div className="hero-cta">
+          <a className="btn btn-acc" href="/">Вернуться на главную</a>
+          <a
+            className="btn btn-line"
             href={bookingUrl(GENERAL_ENQUIRY)}
             target="_blank"
             rel="noopener noreferrer"
-            variant="secondary"
+            data-track="whatsapp"
           >
             Написать в WhatsApp
-          </ButtonLink>
+          </a>
         </div>
 
-        <p className="mt-10 text-sm text-muted">
+        <p className="faq-more" style={{ marginTop: 40 }}>
           Или позвоните:{" "}
           <Link
             href={CONTACT.phoneHref}
-            className="tnum text-ink transition-colors duration-200 hover:text-acc-pale"
+            className="tnum"
           >
             {CONTACT.phoneDisplay}
           </Link>

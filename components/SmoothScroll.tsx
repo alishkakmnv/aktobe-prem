@@ -6,40 +6,30 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 /**
- * Плавный скролл + единый источник времени для ScrollTrigger.
+ * Плавный скролл Lenis (lerp 0.1) на общем тикере GSAP: ScrollTrigger и Lenis
+ * живут в одном кадре и не расходятся.
  *
- * При prefers-reduced-motion Lenis не инициализируется вовсе: остаётся нативный
- * скролл, а scroll-сцены отключают себя сами.
+ * При prefers-reduced-motion Lenis не инициализируется вовсе: остаётся
+ * нативный скролл.
  *
  * Якорные ссылки перехватываются здесь, иначе нативный smooth-scroll и Lenis
- * начинают тянуть страницу одновременно и она дёргается.
+ * тянут страницу одновременно и она дёргается.
  */
 export function SmoothScroll() {
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduced.matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const lenis = new Lenis({
-      duration: 1.05,
-      easing: (t: number) => 1 - Math.pow(1 - t, 4),
-      touchMultiplier: 1.6,
-    });
-
+    const lenis = new Lenis({ lerp: 0.1 });
     lenis.on("scroll", ScrollTrigger.update);
 
-    let frame = 0;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      frame = requestAnimationFrame(raf);
-    };
-    frame = requestAnimationFrame(raf);
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
 
     const onAnchorClick = (event: MouseEvent) => {
-      const anchor = (event.target as HTMLElement | null)?.closest?.(
-        'a[href^="#"]',
-      );
+      const anchor = (event.target as HTMLElement | null)?.closest?.('a[href^="#"]');
       if (!anchor) return;
 
       const href = anchor.getAttribute("href");
@@ -49,15 +39,14 @@ export function SmoothScroll() {
       if (!target) return;
 
       event.preventDefault();
-      // Отступ под липкий хедер, чтобы заголовок секции не уезжал под него.
-      lenis.scrollTo(target as HTMLElement, { offset: -72 });
+      lenis.scrollTo(target as HTMLElement, { offset: href === "#top" ? 0 : -8 });
     };
 
     document.addEventListener("click", onAnchorClick);
 
     return () => {
       document.removeEventListener("click", onAnchorClick);
-      cancelAnimationFrame(frame);
+      gsap.ticker.remove(tick);
       lenis.destroy();
     };
   }, []);

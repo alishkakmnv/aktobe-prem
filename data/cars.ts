@@ -51,6 +51,8 @@ export interface Car {
   pricePerHour: number;
   /** Цвет подтверждён фотографиями. */
   color: string;
+  /** Точка кадрирования в карточке 4:3: на вертикальных кадрах машина стоит внизу. */
+  photoPosition: string;
   /** true → в карточке стоит заглушка вместо снимка машины. */
   photoPending?: true;
 }
@@ -64,6 +66,7 @@ export const CARS: Car[] = [
     name: "Toyota Land Cruiser 200",
     class: "suv",
     photo: photo("land-cruiser-200", "01"),
+    photoPosition: "center 72%",
     alt: "Белый Toyota Land Cruiser 200 у входа в ресторан под навесом, солнечный день",
     transmission: "Автомат",
     drive: "Полный",
@@ -76,6 +79,7 @@ export const CARS: Car[] = [
     name: "Lexus LX570",
     class: "suv",
     photo: photo("lexus-lx570", "01"),
+    photoPosition: "center 62%",
     alt: "Белый Lexus LX570 на брусчатке у делового центра в солнечный день",
     transmission: "Автомат",
     drive: "Полный",
@@ -88,6 +92,7 @@ export const CARS: Car[] = [
     name: "Toyota Land Cruiser Prado",
     class: "suv",
     photo: photo("prado", "01"),
+    photoPosition: "center 74%",
     alt: "Белый Toyota Land Cruiser Prado у кирпичного дома в пасмурный день",
     transmission: "Автомат",
     drive: "Полный",
@@ -102,6 +107,7 @@ export const CARS: Car[] = [
     name: "Toyota Camry",
     class: "sedan",
     photo: photo("camry", "01"),
+    photoPosition: "center 60%",
     alt: "Белая Toyota Camry на тёмных дисках у частного дома",
     transmission: "Автомат",
     drive: "Передний",
@@ -116,6 +122,7 @@ export const CARS: Car[] = [
     name: "Toyota Hiace",
     class: "minivan",
     photo: photo("hiace", "01"),
+    photoPosition: "center 55%",
     alt: "Белый минивэн Toyota Hiace с длинной базой на парковке во дворе",
     transmission: "Автомат",
     // Hiace нового поколения — заднеприводный, подтверждается кадром 01.
@@ -131,6 +138,7 @@ export const CARS: Car[] = [
     name: "Mercedes Sprinter",
     class: "bus",
     photo: photo("sprinter", "01"),
+    photoPosition: "center",
     alt: "Место под фото Mercedes Sprinter: снимок готовится",
     transmission: "Автомат",
     drive: "Задний",
@@ -142,22 +150,24 @@ export const CARS: Car[] = [
 ];
 
 /**
- * Кадр для hero: Land Cruiser 200 в три четверти на солнце. Взят кадр 02, а не
- * 01: hero режется по object-cover, и на широком экране от портретного 01
- * остаётся средняя полоса с навесом, без самой машины. В 02 машина стоит ровно
- * посередине кадра и переживает любой кроп — и 390px, и 1440px.
+ * Машина для hero: белый LX570 без фона, три четверти, носом вправо.
+ * Стоит на линии пола сцены, поэтому нужен вырезанный кадр, а не фото с фоном.
  */
-export const HERO_PHOTO = {
-  src: photo("land-cruiser-200", "02"),
-  alt: "Белый Toyota Land Cruiser 200 в три четверти на солнце",
+export const HERO_CAR = {
+  src: "/hero/lx570-hero.webp",
+  width: 1600,
+  height: 913,
+  alt: "Белый Lexus LX570 в три четверти, носом вправо",
+  name: "Lexus LX570",
+  pricePerHour: 10000,
 };
 
-/** Тот же кадр под превью в мессенджерах. */
+/** Превью в мессенджерах: тот же LX570 на графитовом фоне, 1200×630. */
 export const OG_IMAGE = {
-  url: photo("land-cruiser-200", "01"),
-  width: 960,
-  height: 1280,
-  alt: HERO_PHOTO.alt,
+  url: "/og-lx570.jpg",
+  width: 1200,
+  height: 630,
+  alt: "Белый Lexus LX570 — Aktobe Premium, аренда с водителем в Актобе",
 };
 
 export const CAR_COUNT = CARS.length;

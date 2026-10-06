@@ -46,14 +46,25 @@ export function bookingUrl(message: string): string {
   return `https://wa.me/${BOOKING_TARGET.target}?text=${text}`;
 }
 
+/**
+ * Метка в конце каждого текста: по ней в WhatsApp видно, что заявка пришла
+ * с сайта, а не из Instagram или по сарафану.
+ */
+export const SITE_TAG = "[сайт]";
+
 /** Текст заявки по конкретной машине. */
 export function carEnquiry(carName: string): string {
-  return `Здравствуйте! Интересует ${carName} с водителем. Подскажите по свободному времени и стоимости.`;
+  return `Здравствуйте! Интересует ${carName} с водителем. Подскажите по свободному времени и стоимости. ${SITE_TAG}`;
+}
+
+/** Текст заявки под сценарий из bento: «Свадьба», «Трансфер» и т.д. */
+export function scenarioEnquiry(scenario: string): string {
+  return `Здравствуйте! Нужна машина с водителем: ${scenario.toLowerCase()}. Подскажите по свободному времени и стоимости. ${SITE_TAG}`;
 }
 
 /** Текст заявки без привязки к машине. */
 export const GENERAL_ENQUIRY =
-  "Здравствуйте! Хочу заказать авто с водителем. Подскажите, что свободно и сколько стоит.";
+  `Здравствуйте! Хочу заказать авто с водителем. Подскажите, что свободно и сколько стоит. ${SITE_TAG}`;
 
 /** Якорная навигация. Порядок повторяет путь клиента и не меняется. */
 export const NAV_LINKS = [

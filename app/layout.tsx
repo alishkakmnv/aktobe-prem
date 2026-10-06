@@ -1,24 +1,48 @@
 import type { Metadata, Viewport } from "next";
-import { Unbounded, Golos_Text } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { CONTACT, SITE } from "@/data/site";
 import { OG_IMAGE, MIN_PRICE } from "@/data/cars";
 import "./globals.css";
 
-/* Дисплейный. Кириллица родная (Cyreal), поэтому subsets включает cyrillic —
-   без него русские заголовки уехали бы в системный фолбэк. */
-const unbounded = Unbounded({
-  variable: "--font-unbounded",
+/* Единственная гарнитура сайта. Только кириллица и латиница: остальные
+   сабсеты не нужны и только утяжеляют загрузку. */
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const golos = Golos_Text({
-  variable: "--font-golos",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
+/** Разметка для поиска: компания, адрес, телефон, круглосуточный режим. */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AutoRental",
+  name: SITE.name,
+  url: "https://aktobe-rent.vercel.app",
+  image: `https://aktobe-rent.vercel.app${OG_IMAGE.url}`,
+  telephone: CONTACT.phoneDisplay.replace(/\s/g, ""),
+  priceRange: `от ${MIN_PRICE.toLocaleString("ru-RU")} ${SITE.currency}/${SITE.unit}`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "мкр Алтын Орда 11д",
+    addressLocality: CONTACT.city,
+    addressCountry: "KZ",
+  },
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
+    opens: "00:00",
+    closes: "23:59",
+  },
+};
 
 export const metadata: Metadata = {
   // Боевой адрес деплоя. От него строятся абсолютные ссылки на OG-картинку,
@@ -33,6 +57,7 @@ export const metadata: Metadata = {
     `Аренда премиум-авто с водителем в ${CONTACT.city} от ${MIN_PRICE.toLocaleString("ru-RU")} ${SITE.currency}/${SITE.unit}. ` +
     "Land Cruiser 200, LX570, Prado, Camry, Hiace, Sprinter. Свадьбы, трансферы, " +
     "деловые поездки и VIP-сопровождение. Подача круглосуточно, заказ в WhatsApp.",
+  alternates: { canonical: "/" },
   applicationName: SITE.name,
   keywords: [
     "аренда авто с водителем",
@@ -68,9 +93,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ru"
-      className={`${unbounded.variable} ${golos.variable} h-full antialiased`}
+      className={manrope.variable}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body>
+        <script
+          type="application/ld+json"
+          // JSON-LD собирается из констант проекта, пользовательского ввода тут нет
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

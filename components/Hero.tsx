@@ -1,159 +1,123 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { ArrowDown, MessageCircle } from "lucide-react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { HERO_PHOTO, CAR_COUNT, MIN_PRICE, amountLabel } from "@/data/cars";
+import { CAR_COUNT, HERO_CAR, MIN_PRICE } from "@/data/cars";
 import { CONTACT, GENERAL_ENQUIRY, SITE, bookingUrl } from "@/data/site";
-import { ButtonLink } from "@/components/ui/Button";
+import { Roll } from "@/components/ui/Roll";
+import { ArrowDown } from "@/components/ui/icons";
 
+const money = (n: number) => n.toLocaleString("ru-RU");
+
+/**
+ * Сцена: две вертикальные колонки сетки, линия пола и полоса под ней.
+ * Белый LX570 въезжает слева и встаёт на пол. Сборка на загрузке — CSS
+ * (globals.css), уход по скроллу — ScrollScenes.
+ */
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const photoRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (!photoRef.current || !sectionRef.current) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Параллакс: кадр отстаёт от страницы. Двигаем только transform,
-    // масштаб задан заранее, чтобы снизу не открылся край изображения.
-    const ctx = gsap.context(() => {
-      gsap.to(photoRef.current, {
-        yPercent: 14,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section
-      id="top"
-      ref={sectionRef}
-      className="relative flex min-h-svh flex-col justify-end overflow-hidden"
-    >
-      {/* bg-surface под кадром: на медленной сети до загрузки фото экран
-          остаётся тёмно-серым, а не проваливается в чёрное. */}
-      <div
-        ref={photoRef}
-        className="absolute inset-0 -bottom-[14%] bg-surface will-change-transform"
-      >
-        <Image
-          src={HERO_PHOTO.src}
-          alt={HERO_PHOTO.alt}
-          fill
-          // priority объявлен устаревшим в Next 16. Для LCP-кадра документация
-          // предписывает связку loading="eager" + fetchPriority="high".
-          loading="eager"
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover"
-          style={{ filter: "saturate(0.5) brightness(0.72)" }}
-        />
+    <section id="top" className="hero" data-hero>
+      <div className="hero-cols" aria-hidden="true">
+        <div className="wrap grid12">
+          <div style={{ gridColumn: "1 / span 3" }} />
+          <div style={{ gridColumn: "7 / span 3" }} />
+        </div>
       </div>
+      <div className="hero-floor-line" aria-hidden="true" />
+      <div className="hero-floor" aria-hidden="true" />
 
-      {/* Затемнение под текст. Функциональное, не декоративное:
-          без него светлый текст не проходит по контрасту на светлых участках кадра. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-[linear-gradient(100deg,#0b0c0b_0%,#0b0c0bee_34%,#0b0c0b66_62%,#0b0c0b26_100%)]"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,#0b0c0b_4%,transparent_100%)]"
-      />
-      {/* Верхнее затемнение — под навигацию. Светлый потолок паркинга приходится
-          ровно на правую часть хедера, без него ссылки не проходят по контрасту. */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-44 bg-[linear-gradient(to_bottom,#0b0c0be6_0%,#0b0c0b80_45%,transparent_100%)]"
-      />
-
-      <div className="container-page relative pb-[clamp(3rem,7vw,6rem)] pt-[9rem]">
-        <div className="max-w-[46rem]">
-          <p
-            className="rise text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-acc-pale"
-            style={{ "--d": "0.05s" } as React.CSSProperties}
-          >
+      <div className="wrap grid12 hero-copy-wrap">
+        <div className="hero-copy" data-hero-copy>
+          <p className="eyebrow rise" style={{ animationDelay: "0.1s" }}>
             Аренда с водителем · {CONTACT.city}
           </p>
-
-          <h1
-            className="rise mt-6 text-[clamp(2rem,4.6vw,4.25rem)] font-medium leading-[1.02] tracking-[-0.025em]"
-            style={{ "--d": "0.14s" } as React.CSSProperties}
-          >
-            {/* Перенос через блочный span, а не <br>: с <br> строки заголовка
-                склеиваются в «с водителемв Актобе» при чтении вслух. */}
-            Премиум-авто с водителем{" "}
-            <span className="block">
-              в {CONTACT.city} — от{" "}
-              <span className="tnum">
-                {amountLabel(MIN_PRICE, SITE.currency, SITE.unit)}
+          {/* Строки — блочные span, а не <br>: так заголовок читается вслух
+              целиком, без склейки «водителемв». */}
+          <h1 className="h1">
+            <span className="mask">
+              <span style={{ animationDelay: "0.2s" }}>Премиум-авто</span>
+            </span>{" "}
+            <span className="mask">
+              <span style={{ animationDelay: "0.28s" }}>
+                с <span className="accent">водителем</span>
               </span>
+            </span>{" "}
+            <span className="mask">
+              <span style={{ animationDelay: "0.36s" }}>в {CONTACT.city}</span>
             </span>
           </h1>
-
-          <p
-            className="rise mt-8 max-w-[46ch] text-[1.0625rem] leading-[1.65] text-muted"
-            style={{ "--d": "0.26s" } as React.CSSProperties}
-          >
-            Свадьбы, трансферы, встречи гостей, деловые поездки и
-            VIP-сопровождение. Внедорожники, седан и микроавтобусы с водителем,
-            подача круглосуточно. Стоимость называем до выезда.
+          <p className="hero-price rise tnum" style={{ animationDelay: "0.6s" }}>
+            <span>от</span>
+            <b>
+              {money(MIN_PRICE)} {SITE.currency}
+            </b>
+            <span>в час, стоимость называем до выезда</span>
           </p>
-
-          <div
-            className="rise mt-10 flex flex-col gap-3 sm:flex-row"
-            style={{ "--d": "0.38s" } as React.CSSProperties}
-          >
-            <ButtonLink href="#fleet">
-              Смотреть автопарк
-              <ArrowDown size={16} strokeWidth={1.75} aria-hidden />
-            </ButtonLink>
-            <ButtonLink
+          <p className="hero-text rise" style={{ animationDelay: "0.65s" }}>
+            Свадьбы, трансферы, встречи гостей, деловые поездки
+            и VIP-сопровождение. Подача круглосуточно, по записи.
+          </p>
+          <div className="hero-cta rise" style={{ animationDelay: "0.7s" }}>
+            <a className="btn btn-acc" href="#fleet">
+              <Roll>Выбрать автомобиль</Roll>
+              <ArrowDown />
+            </a>
+            <a
+              className="btn btn-line"
               href={bookingUrl(GENERAL_ENQUIRY)}
               target="_blank"
               rel="noopener noreferrer"
-              variant="secondary"
+              data-track="whatsapp"
             >
-              <MessageCircle size={16} strokeWidth={1.75} aria-hidden />
-              Написать в WhatsApp
-            </ButtonLink>
+              <Roll>Написать в WhatsApp</Roll>
+            </a>
           </div>
-
-          {/* Не плитки с крупными числами, а одна строка фактов:
-              шаблон hero-метрик — жанровый штамп, он под запретом. */}
-          <ul
-            className="rise mt-12 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted"
-            style={{ "--d": "0.5s" } as React.CSSProperties}
-          >
-            <li className="whitespace-nowrap">
-              <span className="tnum text-ink">{CAR_COUNT}</span> автомобилей
-            </li>
-            <li aria-hidden className="text-line">
-              ·
-            </li>
-            {/* Число классов ручное: русские числительные из length не собрать */}
-            <li className="whitespace-nowrap">четыре класса</li>
-            <li aria-hidden className="text-line">
-              ·
-            </li>
-            <li className="whitespace-nowrap">
-              подача <span className="text-ink">{CONTACT.hours}</span>
-            </li>
-          </ul>
         </div>
+      </div>
+
+      <div className="hero-stage-wrap">
+        <div className="car-stage" data-hero-car>
+          <div className="car-shadow" aria-hidden="true" />
+          <div className="car-move">
+            <div className="car-nod">
+              <Image
+                src={HERO_CAR.src}
+                alt={HERO_CAR.alt}
+                width={HERO_CAR.width}
+                height={HERO_CAR.height}
+                // Готовый WebP ~140 КБ без фона: пережимать его незачем,
+                // а preload кладёт ссылку в <head> — это LCP-кадр.
+                unoptimized
+                preload
+                fetchPriority="high"
+              />
+            </div>
+          </div>
+          <p
+            className="plate rise tnum"
+            style={{ animationDelay: "1.1s" }}
+            aria-hidden="true"
+          >
+            <b>{HERO_CAR.name}</b>
+            <span>
+              {money(HERO_CAR.pricePerHour)} {SITE.currency}/{SITE.unit}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div className="wrap hero-info">
+        <ul className="rise tnum" style={{ animationDelay: "0.8s" }}>
+          <li>
+            <b>{CAR_COUNT}</b> автомобилей, все белые
+          </li>
+          {/* Число классов ручное: русские числительные из length не собрать */}
+          <li>
+            <b>4</b> класса: от седана до микроавтобуса
+          </li>
+          <li>Без залога</li>
+          <li>Нал · карта · QR</li>
+        </ul>
+        <a href="#fleet" className="scroll-cue" aria-label="Прокрутить к автопарку">
+          <span aria-hidden="true" />
+        </a>
       </div>
     </section>
   );

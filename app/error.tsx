@@ -51,10 +51,7 @@ export default function Error({
 
         <p className="faq-more" style={{ marginTop: 40 }}>
           Телефон:{" "}
-          <a
-            href={CONTACT.phoneHref}
-            className="tnum"
-          >
+          <a href={CONTACT.phoneHref} className="tnum" data-track="phone">
             {CONTACT.phoneDisplay}
           </a>
         </p>

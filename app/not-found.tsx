@@ -18,7 +18,7 @@ export default function NotFound() {
         </p>
 
         <div className="hero-cta">
-          <a className="btn btn-acc" href="/">Вернуться на главную</a>
+          <Link className="btn btn-acc" href="/">Вернуться на главную</Link>
           <a
             className="btn btn-line"
             href={bookingUrl(GENERAL_ENQUIRY)}
@@ -32,12 +32,9 @@ export default function NotFound() {
 
         <p className="faq-more" style={{ marginTop: 40 }}>
           Или позвоните:{" "}
-          <Link
-            href={CONTACT.phoneHref}
-            className="tnum"
-          >
+          <a href={CONTACT.phoneHref} className="tnum" data-track="phone">
             {CONTACT.phoneDisplay}
-          </Link>
+          </a>
           <span className="sr-only"> ({SITE.name})</span>
         </p>
       </div>

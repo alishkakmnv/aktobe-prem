@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
-import { CONTACT, SITE } from "@/data/site";
+import { CONTACT, SITE, SITE_URL } from "@/data/site";
 import { OG_IMAGE, MIN_PRICE } from "@/data/cars";
 import "./globals.css";
 
@@ -18,8 +18,8 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "AutoRental",
   name: SITE.name,
-  url: "https://aktobe-rent.vercel.app",
-  image: `https://aktobe-rent.vercel.app${OG_IMAGE.url}`,
+  url: SITE_URL,
+  image: `${SITE_URL}${OG_IMAGE.url}`,
   telephone: CONTACT.phoneDisplay.replace(/\s/g, ""),
   priceRange: `от ${MIN_PRICE.toLocaleString("ru-RU")} ${SITE.currency}/${SITE.unit}`,
   address: {
@@ -45,10 +45,9 @@ const jsonLd = {
 };
 
 export const metadata: Metadata = {
-  // Боевой адрес деплоя. От него строятся абсолютные ссылки на OG-картинку,
-  // иначе превью при отправке ссылки в мессенджер приходит без изображения.
-  // ЗАМЕНИТЬ, когда у клиента появится собственный домен.
-  metadataBase: new URL("https://aktobe-rent.vercel.app"),
+  // Боевой адрес из data/site.ts. От него строятся canonical и абсолютные
+  // ссылки на OG, иначе превью в мессенджере приходит без изображения.
+  metadataBase: new URL(SITE_URL),
   title: {
     default: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,
     template: `%s · ${SITE.name}`,

@@ -7,6 +7,12 @@
  */
 
 /**
+ * Боевой адрес сайта. От него строятся metadataBase, canonical, OG, JSON-LD,
+ * robots и sitemap. Появится свой домен — меняется здесь и только здесь.
+ */
+export const SITE_URL = "https://aktobe-rent.vercel.app";
+
+/**
  * Куда уходит заявка. Меняется здесь и только здесь.
  * Когда подключим Telegram-канал, достаточно поменять kind и target:
  * все кнопки сайта ходят через bookingUrl().

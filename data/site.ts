@@ -65,7 +65,9 @@ export function carEnquiry(carName: string): string {
 
 /** Текст заявки под сценарий из bento: «Свадьба», «Трансфер» и т.д. */
 export function scenarioEnquiry(scenario: string): string {
-  return `Здравствуйте! Нужна машина с водителем: ${scenario.toLowerCase()}. Подскажите по свободному времени и стоимости. ${SITE_TAG}`;
+  // Строчной делаем только первую букву: «VIP» должен остаться капсом
+  const lower = scenario.charAt(0).toLowerCase() + scenario.slice(1);
+  return `Здравствуйте! Нужна машина с водителем: ${lower}. Подскажите по свободному времени и стоимости. ${SITE_TAG}`;
 }
 
 /** Текст заявки без привязки к машине. */

@@ -1,7 +1,7 @@
 # Aktobe Premium
 
 Лендинг премиум-аренды авто с водителем в Актобе: шесть машин, почасовой тариф,
-заявка уходит в WhatsApp. Прод: https://aktobe-rent.vercel.app
+заявка уходит в WhatsApp. Прод: https://aktobe-premium.vercel.app
 
 ## Стек
 

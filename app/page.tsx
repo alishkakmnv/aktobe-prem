@@ -8,6 +8,7 @@ import { Trust } from "@/components/sections/Trust";
 import { Contacts, Footer } from "@/components/sections/Contacts";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { TrackClicks } from "@/components/TrackClicks";
+import { MobileBar } from "@/components/MobileBar";
 
 /**
  * Порядок секций — это порядок сомнений арендатора, он зафиксирован в
@@ -31,6 +32,7 @@ export default function Page() {
       </main>
       <Footer />
       <FloatingWhatsApp />
+      <MobileBar />
     </>
   );
 }

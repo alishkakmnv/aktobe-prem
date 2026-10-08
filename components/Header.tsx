@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { NAV_LINKS, SITE, GENERAL_ENQUIRY, bookingUrl } from "@/data/site";
+import {
+  CONTACT,
+  NAV_LINKS,
+  SITE,
+  GENERAL_ENQUIRY,
+  bookingUrl,
+} from "@/data/site";
 import { ButtonLink } from "@/components/ui/Button";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -104,6 +110,16 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Телефон только на десктопе: на узких экранах есть нижняя панель
+                «Позвонить», и в шапке он только теснил бы логотип. */}
+            <a
+              href={CONTACT.phoneHref}
+              data-track="phone"
+              className="tnum mr-3 hidden py-3 text-[0.9375rem] text-muted transition-colors duration-200 hover:text-ink lg:inline-block"
+            >
+              {CONTACT.phoneDisplay}
+            </a>
+
             {/* Видимость через обёртку: класс display на самой кнопке конфликтовал
                 бы с inline-flex из её базового стиля. */}
             <div className="hidden sm:block">

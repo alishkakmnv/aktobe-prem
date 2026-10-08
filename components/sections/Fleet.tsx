@@ -96,12 +96,14 @@ export function Fleet() {
 
         {/* До 640px — горизонтальная лента со snap: шесть карточек столбиком
             растягивали страницу на несколько экранов. Соседняя карточка видна
-            из-за края и подсказывает, что ленту можно листать. */}
+            из-за края и подсказывает, что ленту можно листать. relative нужен,
+            чтобы sr-only-подписи внутри ленты обрезались ею, а не растягивали
+            страницу вширь. */}
         <motion.ul
           ref={railRef}
           onScroll={onRailScroll}
           layout={!reduced}
-          className="-mx-[clamp(1.25rem,4vw,4rem)] mt-8 flex snap-x snap-mandatory scroll-px-[clamp(1.25rem,4vw,4rem)] gap-x-4 overflow-x-auto px-[clamp(1.25rem,4vw,4rem)] [scrollbar-width:none] sm:mx-0 sm:grid sm:snap-none sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] sm:gap-x-6 sm:gap-y-12 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden"
+          className="relative -mx-[clamp(1.25rem,4vw,4rem)] mt-8 flex snap-x snap-mandatory scroll-px-[clamp(1.25rem,4vw,4rem)] gap-x-4 overflow-x-auto px-[clamp(1.25rem,4vw,4rem)] [scrollbar-width:none] sm:mx-0 sm:grid sm:snap-none sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] sm:gap-x-6 sm:gap-y-12 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden"
         >
           <AnimatePresence mode="popLayout" initial={false}>
             {visible.map((car) => {

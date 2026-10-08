@@ -68,6 +68,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
+    url: "/",
     locale: "ru_RU",
     siteName: SITE.name,
     title: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,

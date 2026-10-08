@@ -30,6 +30,15 @@ interface ButtonLinkProps extends ComponentPropsWithoutRef<"a"> {
  * Все CTA проекта — ссылки: либо якорь, либо мессенджер.
  * Кнопки без назначения не допускаются.
  */
+/** Метка для аналитики конверсий: whatsapp | phone, у якорей её нет. */
+export function trackKind(href?: string): "whatsapp" | "phone" | undefined {
+  if (href?.startsWith("tel:")) return "phone";
+  if (href?.startsWith("https://wa.me") || href?.startsWith("https://t.me")) {
+    return "whatsapp";
+  }
+  return undefined;
+}
+
 export function ButtonLink({
   variant = "primary",
   className = "",
@@ -37,6 +46,7 @@ export function ButtonLink({
 }: ButtonLinkProps) {
   return (
     <a
+      data-track={trackKind(props.href)}
       {...props}
       className={`${base} ${sizes} ${variants[variant]} ${className}`}
     />

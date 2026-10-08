@@ -57,6 +57,7 @@ export default function Error({
           Телефон:{" "}
           <a
             href={CONTACT.phoneHref}
+            data-track="phone"
             className="tnum text-ink transition-colors duration-200 hover:text-acc-pale"
           >
             {CONTACT.phoneDisplay}

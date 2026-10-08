@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { CONTACT, GENERAL_ENQUIRY, SITE, bookingUrl } from "@/data/site";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -32,12 +31,13 @@ export default function NotFound() {
 
         <p className="mt-10 text-sm text-muted">
           Или позвоните:{" "}
-          <Link
+          <a
             href={CONTACT.phoneHref}
+            data-track="phone"
             className="tnum text-ink transition-colors duration-200 hover:text-acc-pale"
           >
             {CONTACT.phoneDisplay}
-          </Link>
+          </a>
           <span className="sr-only"> ({SITE.name})</span>
         </p>
       </div>

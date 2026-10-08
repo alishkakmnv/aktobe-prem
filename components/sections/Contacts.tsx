@@ -38,6 +38,7 @@ export function Contacts() {
             </h3>
             <a
               href={CONTACT.phoneHref}
+              data-track="phone"
               className="tnum mt-3 inline-block font-display text-[1.0625rem] text-ink transition-colors duration-200 hover:text-acc-pale"
             >
               {CONTACT.phoneDisplay}

@@ -157,6 +157,7 @@ export function Fleet() {
                       href={bookingUrl(carEnquiry(car.name))}
                       target="_blank"
                       rel="noopener noreferrer"
+                      data-track="whatsapp"
                       className="font-display text-sm text-acc-pale transition-colors duration-200 hover:text-ink"
                     >
                       Забронировать

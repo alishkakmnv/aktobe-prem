@@ -7,6 +7,12 @@
  */
 
 /**
+ * Боевой адрес сайта. От него строятся metadataBase, canonical, og:url,
+ * JSON-LD, robots и sitemap. Появится свой домен — меняется здесь и только здесь.
+ */
+export const SITE_URL = "https://aktobe-premium.vercel.app";
+
+/**
  * Куда уходит заявка. Меняется здесь и только здесь.
  * Когда подключим Telegram-канал, достаточно поменять kind и target:
  * все кнопки сайта ходят через bookingUrl().
@@ -35,11 +41,18 @@ export const SITE = {
 } as const;
 
 /**
+ * Метка в конце каждого текста: по ней в WhatsApp видно, что заявка пришла
+ * с сайта, а не из Instagram или по сарафану.
+ */
+export const SITE_TAG = "[сайт]";
+
+/**
  * Собирает ссылку на заявку с предзаполненным текстом.
  * Единственный способ получить CTA-ссылку в проекте — хардкод wa.me запрещён.
+ * Метку дописывает сама: так её не забудет ни один текст заявки.
  */
 export function bookingUrl(message: string): string {
-  const text = encodeURIComponent(message);
+  const text = encodeURIComponent(`${message} ${SITE_TAG}`);
   if (BOOKING_TARGET.kind === "telegram") {
     return `https://t.me/${BOOKING_TARGET.target}?text=${text}`;
   }

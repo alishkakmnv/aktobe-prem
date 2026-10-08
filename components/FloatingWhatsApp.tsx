@@ -51,6 +51,7 @@ export function FloatingWhatsApp() {
           href={bookingUrl(GENERAL_ENQUIRY)}
           target="_blank"
           rel="noopener noreferrer"
+          data-track="whatsapp"
           initial={
             reduced ? { opacity: 0 } : { opacity: 0, transform: "translateY(12px)" }
           }

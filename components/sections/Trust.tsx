@@ -91,6 +91,7 @@ export function Trust() {
               href={bookingUrl(GENERAL_ENQUIRY)}
               target="_blank"
               rel="noopener noreferrer"
+              data-track="whatsapp"
               className="text-acc-pale transition-colors duration-200 hover:text-ink"
             >
               спросите в WhatsApp

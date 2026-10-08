@@ -58,6 +58,7 @@ export function Terms() {
             )}
             target="_blank"
             rel="noopener noreferrer"
+            data-track="whatsapp"
             className="text-acc-pale transition-colors duration-200 hover:text-ink"
           >
             спросить в WhatsApp

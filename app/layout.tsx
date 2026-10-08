@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Unbounded, Golos_Text } from "next/font/google";
-import { CONTACT, SITE } from "@/data/site";
+import { CONTACT, SITE, SITE_URL } from "@/data/site";
 import { OG_IMAGE, MIN_PRICE } from "@/data/cars";
 import "./globals.css";
 
@@ -20,11 +20,42 @@ const golos = Golos_Text({
   display: "swap",
 });
 
+/** Разметка для поиска: компания, адрес, телефон, круглосуточный режим. */
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AutoRental",
+  name: SITE.name,
+  url: SITE_URL,
+  image: `${SITE_URL}${OG_IMAGE.url}`,
+  telephone: CONTACT.phoneDisplay.replace(/\s/g, ""),
+  priceRange: `от ${MIN_PRICE.toLocaleString("ru-RU")} ${SITE.currency}/${SITE.unit}`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "мкр Алтын Орда 11д",
+    addressLocality: CONTACT.city,
+    addressCountry: "KZ",
+  },
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
+    opens: "00:00",
+    closes: "23:59",
+  },
+};
+
 export const metadata: Metadata = {
-  // Боевой адрес деплоя. От него строятся абсолютные ссылки на OG-картинку,
-  // иначе превью при отправке ссылки в мессенджер приходит без изображения.
-  // ЗАМЕНИТЬ, когда у клиента появится собственный домен.
-  metadataBase: new URL("https://aktobe-rent.vercel.app"),
+  // Боевой адрес из data/site.ts. От него строятся canonical и абсолютные
+  // ссылки на OG, иначе превью в мессенджере приходит без изображения.
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
   title: {
     default: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,
     template: `%s · ${SITE.name}`,
@@ -44,6 +75,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
+    url: "/",
     locale: "ru_RU",
     siteName: SITE.name,
     title: `Премиум-авто с водителем в ${CONTACT.city} | ${SITE.name}`,
@@ -70,7 +102,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ru"
       className={`${unbounded.variable} ${golos.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          // JSON-LD собирается из констант проекта, пользовательского ввода тут нет
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

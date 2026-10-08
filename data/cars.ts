@@ -152,11 +152,14 @@ export const HERO_PHOTO = {
   alt: "Белый Toyota Land Cruiser 200 в три четверти на солнце",
 };
 
-/** Тот же кадр под превью в мессенджерах. */
+/**
+ * Тот же кадр hero под превью в мессенджерах, 1200×630. Кадр портретный, поэтому
+ * машина вписана целиком, а края добиты размытым продолжением того же снимка.
+ */
 export const OG_IMAGE = {
-  url: photo("land-cruiser-200", "01"),
-  width: 960,
-  height: 1280,
+  url: "/og-lc200.jpg",
+  width: 1200,
+  height: 630,
   alt: HERO_PHOTO.alt,
 };
 

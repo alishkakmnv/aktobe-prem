@@ -102,7 +102,7 @@ export function Header() {
                     className="group relative inline-block py-3 text-sm text-muted transition-colors duration-200 hover:text-ink"
                   >
                     {link.label}
-                    <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-acc-pale transition-transform duration-200 ease-out-quint group-hover:scale-x-100" />
+                    <span className="absolute inset-x-0 bottom-0.5 h-px origin-left scale-x-0 bg-acc-pale transition-transform duration-200 ease-out-quint group-hover:scale-x-100" />
                   </a>
                 </li>
               ))}

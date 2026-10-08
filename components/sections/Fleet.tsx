@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -18,12 +18,29 @@ type Filter = CarClassId | "all";
 
 export function Fleet() {
   const [filter, setFilter] = useState<Filter>("all");
+  const [railIndex, setRailIndex] = useState(1);
+  const railRef = useRef<HTMLUListElement>(null);
   const reduced = useReducedMotion();
 
   const visible = useMemo(
     () => (filter === "all" ? CARS : CARS.filter((c) => c.class === filter)),
     [filter],
   );
+
+  // Счётчик ленты на мобайле: какая карточка сейчас у левого края.
+  const onRailScroll = () => {
+    const rail = railRef.current;
+    const first = rail?.firstElementChild as HTMLElement | null;
+    if (!rail || !first || rail.scrollWidth <= rail.clientWidth) return;
+    const step = first.offsetWidth + parseFloat(getComputedStyle(rail).columnGap || "0");
+    setRailIndex(Math.min(visible.length, Math.round(rail.scrollLeft / step) + 1));
+  };
+
+  const pick = (id: Filter) => {
+    setFilter(id);
+    setRailIndex(1);
+    railRef.current?.scrollTo({ left: 0 });
+  };
 
   const tabs: { id: Filter; label: string }[] = [
     { id: "all", label: "Все" },
@@ -55,7 +72,7 @@ export function Fleet() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setFilter(tab.id)}
+                onClick={() => pick(tab.id)}
                 aria-pressed={active}
                 className={`rounded-md border px-5 py-3 text-sm transition-[background-color,border-color,color] duration-200 ease-out-quint ${
                   active
@@ -77,9 +94,14 @@ export function Fleet() {
           <span className="tnum">{CAR_COUNT}</span>
         </p>
 
+        {/* До 640px — горизонтальная лента со snap: шесть карточек столбиком
+            растягивали страницу на несколько экранов. Соседняя карточка видна
+            из-за края и подсказывает, что ленту можно листать. */}
         <motion.ul
+          ref={railRef}
+          onScroll={onRailScroll}
           layout={!reduced}
-          className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-x-6 gap-y-12"
+          className="-mx-[clamp(1.25rem,4vw,4rem)] mt-8 flex snap-x snap-mandatory scroll-px-[clamp(1.25rem,4vw,4rem)] gap-x-4 overflow-x-auto px-[clamp(1.25rem,4vw,4rem)] [scrollbar-width:none] sm:mx-0 sm:grid sm:snap-none sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] sm:gap-x-6 sm:gap-y-12 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden"
         >
           <AnimatePresence mode="popLayout" initial={false}>
             {visible.map((car) => {
@@ -92,18 +114,17 @@ export function Fleet() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.18 } }}
                   transition={{ duration: 0.4, ease: EASE }}
-                  className="group"
+                  className="group w-[86vw] max-w-[336px] shrink-0 snap-start sm:w-auto sm:max-w-none"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-surface">
+                  {/* Рамка через outline, а не border: она не сдвигает вёрстку
+                      и не требует тени. */}
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-surface outline outline-1 -outline-offset-1 outline-transparent transition-[outline-color] duration-500 ease-out-quint group-hover:outline-acc">
                     <Image
                       src={car.photo}
                       alt={car.alt}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"
-                      className="object-cover transition-[filter,transform] duration-500 ease-out-quint
-                                 [filter:saturate(0.4)_brightness(0.78)]
-                                 group-hover:[filter:saturate(1)_brightness(1)]
-                                 group-hover:scale-[1.03]"
+                      sizes="(max-width: 640px) 86vw, (max-width: 1100px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 ease-out-quint group-hover:scale-[1.03]"
                     />
                     <span className="absolute left-4 top-4 rounded-sm border border-acc-pale/35 bg-bg/70 px-2.5 py-1 text-[0.6875rem] font-medium uppercase tracking-[0.12em] text-acc-pale backdrop-blur-sm">
                       {klass?.label}
@@ -158,7 +179,8 @@ export function Fleet() {
                       target="_blank"
                       rel="noopener noreferrer"
                       data-track="whatsapp"
-                      className="font-display text-sm text-acc-pale transition-colors duration-200 hover:text-ink"
+                      // -my-3 py-3: тач-цель 44px по высоте без сдвига вёрстки
+                      className="-my-3 inline-block py-3 font-display text-sm text-acc-pale transition-colors duration-200 hover:text-ink"
                     >
                       Забронировать
                       {/* Марка уходит в sr-only: на экране она уже над кнопкой,
@@ -171,6 +193,12 @@ export function Fleet() {
             })}
           </AnimatePresence>
         </motion.ul>
+
+        {visible.length > 1 && (
+          <p aria-hidden className="tnum mt-5 text-sm text-muted sm:hidden">
+            <span className="text-ink">{railIndex}</span> / {visible.length}
+          </p>
+        )}
       </div>
     </section>
   );
